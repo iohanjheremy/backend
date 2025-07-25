@@ -1,0 +1,8 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: Controle de Presença API
+      description: API para gerenciamento de alunos, aulas e presença
+      version: 1.0.0
+  areas: # para que funcione apenas nos controllers da API
+    path_patterns: [ '^/api' ]
