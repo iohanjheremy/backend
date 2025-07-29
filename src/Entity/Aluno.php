@@ -13,6 +13,8 @@ class Aluno
     #[ORM\Column]
     private ?int $id = null;
 
+    private ?
+
     public function getId(): ?int
     {
         return $this->id;
