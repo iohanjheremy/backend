@@ -15,7 +15,6 @@ class AulaController extends AbstractController
 
 
     #[OA\Post(
-        path: 'api/aulas/{id}/{data}',
         summary: 'Registra uma aula',
         requestBody: new OA\RequestBody(
             request: true,
@@ -41,7 +40,7 @@ class AulaController extends AbstractController
     )]
 
 
-    #[Route('api/aulas/{id}/{data}', name: 'cadastrar_aula', methods: ['POST'])]
+    #[Route('api/aulas', name: 'cadastrar_aula', methods: ['POST'])]
     public function cadastrar(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

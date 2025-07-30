@@ -18,7 +18,6 @@ class PresencaController extends AbstractController
 {
 
     #[OA\Post(
-        path: '/api/presencas',
         summary: 'Registra a presença de um aluno e uma aula',
         requestBody: new OA\RequestBody(
             request: true,
@@ -45,7 +44,7 @@ class PresencaController extends AbstractController
     )]
 
 
-    #[Route('api/presencas/{aluno_id}/{aula_id}/{presenca}', name: 'registrar_presenca', methods: ['POST'])]
+    #[Route('api/presencas', name: 'registrar_presenca', methods: ['POST'])]
 
     public function registrar(
         Request $request,
@@ -53,30 +52,28 @@ class PresencaController extends AbstractController
         AlunoRepository $alunoRepo,
         AulaRepository $aulaRepo
     ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['aluno_id'], $data['aula_id'], $data['presente'])) {
-            return $this->json(['erro' => 'Parâmetros obrigatórios: alunos_id, aula_id, presente (boolean)'], 400);
-        }
+        $data = json_decode($request->getContent(), true);
 
         $aluno = $alunoRepo->find($data['aluno_id']);
         $aula = $aulaRepo->find($data['aula_id']);
 
         if (!$aluno || !$aula) {
             return $this->json(['error' => 'Aluno ou Aula não encontrada.'], 404);
-
-            $presenca = new Presenca();
-            $presenca->setAluno($aluno);
-            $presenca->setAula($aula);
-            $presenca->setPresente((bool)$data['presente']);
-
-            $em->persist($presenca);
-            $em->flush();
-
-            return $this->json([
-                'mensagem' => 'Presenca registrada com sucesso',
-                'presenca_id' => $presenca->getId()
-            ], 201);
         }
+
+        $presenca = new Presenca();
+        $presenca->setAluno($data['aluno_id']);
+        $presenca->setAula($data['aula_id']);
+        $presenca->setPresente((bool)$data['presente']);
+
+
+        $em->persist($presenca);
+        $em->flush();
+
+        return $this->json([
+            'mensagem' => 'Presenca registrada com sucesso',
+            'presenca_id' => $presenca->getId()
+        ], 201);
     }
 }
