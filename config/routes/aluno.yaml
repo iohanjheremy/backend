@@ -1,4 +1,0 @@
-aluno_listar:
-  path: /api/alunos
-  controller: App\Controller\AlunoController::listar
-  methods: GET

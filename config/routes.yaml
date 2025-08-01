@@ -1,5 +1,12 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+aluno_controllers:
+    resource: ../src/Aluno/Infrastructure/Controller/
     type: attribute
+
+aula_controllers:
+    resource: ../src/Aula/Infrastructure/Controller/
+    type: attribute
+
+presenca_controllers:
+    resource: ../src/Presenca/Infrastructure/Controller/
+    type: attribute
+    

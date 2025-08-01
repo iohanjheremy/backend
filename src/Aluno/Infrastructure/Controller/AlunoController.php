@@ -1,44 +1,43 @@
 <?php
 
-namespace App\Controller;
+namespace App\Aluno\Infrastructure\Controller;
 
 use OpenApi\Attributes as OA;
-use App\Entity\Aluno;
-use App\Repository\AlunoRepository;
+use App\Aluno\Domain\Entity\Aluno;
+use App\Aluno\Domain\Repository\AlunoRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
- #[OA\Tag(name: 'Alunos')]
+#[OA\Tag(name: "Alunos")]
 class AlunoController extends AbstractController
 {
+    #[Route('/api/alunos', name: 'cadastrar_aluno', methods: ['POST'])]
     #[OA\Post(
-        path: '/api/alunos/{nome}',
         summary: 'Cadastrar um novo aluno',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
                 required: ['nome'],
                 properties: [
-                    new OA\Property(property: 'nome', type: 'string', example: 'Joao da Silva')
+                    new OA\Property(property: 'nome',  type: 'string', example: 'Joao da Silva')
                 ]
             )
         ),
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Aluno cadastrado com sucesso'
+                description: 'Aluno Cadastrado com sucesso'
             ),
             new OA\Response(
                 response: 400,
-                description: 'Requisição inválida'
+                description: "Requisição inválida"
             )
         ]
     )]
 
-    #[Route('/api/alunos', name: 'cadastrar_aluno', methods: ['POST'])]
     public function cadastrar(Request $request,  EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -47,7 +46,7 @@ class AlunoController extends AbstractController
             return $this->json(['erro' => 'O campo "nome" é obrigatório'], 400);
         }
 
-        $aluno = new Aluno();
+        $aluno = new Aluno($data['nome']);
         $aluno->setNome($data['nome']);
 
         $em->persist($aluno);
@@ -60,8 +59,8 @@ class AlunoController extends AbstractController
         ], 201);
     }
 
+    #[Route('/api/alunos', name: 'listar_alunos', methods: ['GET'])]
     #[OA\Get(
-        path: '/api/alunos',
         summary: 'Listar todos os alunos cadastrados',
         responses: [
             new OA\Response(
@@ -81,8 +80,7 @@ class AlunoController extends AbstractController
         ]
     )]
 
-    #[Route('/api/alunos', name: 'listar_alunos', methods: ['GET'])]
-    public function listar(AlunoRepository $alunoRepository): JsonResponse
+    public function listar(AlunoRepositoryInterface $alunoRepository): JsonResponse
     {
         $alunos = $alunoRepository->findAll();
 
