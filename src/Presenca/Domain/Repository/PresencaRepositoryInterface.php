@@ -8,4 +8,5 @@ interface PresencaRepositoryInterface
 {
     public function save(Presenca $presenca): void;
     public function findByAlunoId_AulaId(int $alunoId, int $aulaId): ?Presenca;
+    public function findByAulaId(int $aulaId): array;
 }

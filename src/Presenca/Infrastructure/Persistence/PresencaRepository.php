@@ -32,4 +32,15 @@ class PresencaRepository extends ServiceEntityRepository implements PresencaRepo
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findByAulaId(int $aulaId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.aluno', 'a')
+            ->addSelect('a')
+            ->where('p.aula = :aulaId')
+            ->setParameter('aulaId', $aulaId)
+            ->getQuery()
+            ->getResult();
+    }
 }

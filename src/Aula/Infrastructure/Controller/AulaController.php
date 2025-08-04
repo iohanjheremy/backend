@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[OA\Tag(name: "Aulas")]
 class AulaController extends AbstractController
 {
-    #[Route('api/aulas', name: 'cadastrar_aula', methods: ['POST'])]
+    #[Route('/api/aulas', name: 'cadastrar_aula', methods: ['POST'])]
     #[OA\Post(
         summary: "Registrar uma aula",
         requestBody: new OA\RequestBody(
@@ -72,7 +72,7 @@ class AulaController extends AbstractController
         return $this->json($dados);
     }
 
-    
+     
     public function cadastrar(Request $request, CriarAula $criarAula): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

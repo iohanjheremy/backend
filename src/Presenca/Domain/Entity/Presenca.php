@@ -53,7 +53,7 @@ class Presenca
         return $this;
     }
 
-    public function isPresent(): bool 
+    public function isPresente(): bool 
     {
         return $this->presente;
     }
