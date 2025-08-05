@@ -17,6 +17,42 @@ use Symfony\Component\Routing\Annotation\Route;
 class PresencaController extends AbstractController
 {
 
+    #[Route('/api/presencas/aulas/{id}', name: 'listar_presenca_por_aula', methods: ['GET'])]
+    #[OA\Get(
+        summary: "Listar presenças por aula",
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Lista de Presença",
+                content: new OA\JsonContent(
+                    type: "array",
+                    items: new OA\Items(
+                        type: "object",
+                        properties: [
+                            new OA\Property(property: "aluno_id", type: "integer"),
+                            new OA\Property(property: "aluno_nome", type: "string"),
+                            new OA\Property(property: "presente", type: "boolean")
+                        ]
+                    )
+                )
+            )
+        ]
+    )]
+
+     public function listarPorAula(int $id, ListarPresencaPorAulaUseCase $useCase)
+    {
+        $presencas = $useCase->execute($id);
+
+        $dados = array_map(fn($presenca) => [
+            'aluno_id' => $presenca->getALuno()->getId(),
+            'aluno_nome' => $presenca->getAluno()->getNome(),
+            'presente' => $presenca->isPresente(),
+        ], $presencas);
+
+        return $this->json($dados);
+    }
+
+    #[Route('/api/presencas', name: 'registrar_presenca', methods: ['POST'])]
     #[OA\Post(
         summary: "Registrar Presença",
         requestBody: new OA\RequestBody(
@@ -42,29 +78,6 @@ class PresencaController extends AbstractController
         ]
     )]
 
-    
-    #[OA\Get(
-        summary: "Listar presenças por aula",
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "Lista de Presença",
-                content: new OA\JsonContent(
-                    type: "array",
-                    items: new OA\Items(
-                        type: "object",
-                        properties: [
-                            new OA\Property(property: "aluno_id", type: "integer"),
-                            new OA\Property(property: "aluno_nome", type: "string"),
-                            new OA\Property(property: "presente", type: "boolean")
-                        ]
-                    )
-                )
-            )
-        ]
-    )]
-
-    #[Route('/api/presencas', name: 'registrar_presenca', methods: ['POST'])]
     public function registrar(
         Request $request,
         RegistrarPresencaUseCase $useCase,
@@ -94,20 +107,5 @@ class PresencaController extends AbstractController
         $useCase->execute($presenca);
 
         return $this->json(['mensagem' => 'Presença registrada com sucesso!', 201]);
-    }
-
-
-    #[Route('/api/presencas/aulas/{id}', name: 'listar_presenca_por_aula', methods: ['GET'])]
-    public function listarPorAula(int $id, ListarPresencaPorAulaUseCase $useCase)
-    {
-        $presencas = $useCase->execute($id);
-
-        $dados = array_map(fn($presenca) => [
-            'aluno_id' => $presenca->getALuno()->getId(),
-            'aluno_nome' => $presenca->getAluno()->getNome(),
-            'presente' => $presenca->isPresente(),
-        ], $presencas);
-
-        return $this->json($dados);
     }
 }
