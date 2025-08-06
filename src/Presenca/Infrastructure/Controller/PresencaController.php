@@ -167,8 +167,8 @@ class PresencaController extends AbstractController
         if (!$resultado) {
             return $this->json(['erro' => 'Presença não encontrada'], 400);
         }
-        
 
+        
         return $this->json([
             'mensagem' => 'Presença atualizada com sucesso',
             'presenca' => [
