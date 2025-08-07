@@ -7,6 +7,7 @@ use App\Aula\Domain\Repository\AulaRepositoryInterface;
 use App\Aluno\Domain\Repository\AlunoRepositoryInterface;
 use App\Presenca\Application\UseCase\AtualizarPresencaUseCase;
 use App\Presenca\Application\UseCase\DeletarPresencaUseCase;
+use App\Presenca\Application\UseCase\ListarPresencaUseCase;
 use App\Presenca\Application\UseCase\ListarPresencaPorAulaUseCase;
 use App\Presenca\Application\UseCase\RegistrarPresencaUseCase;
 use App\Presenca\Domain\Entity\Presenca;
@@ -20,18 +21,67 @@ use Symfony\Component\Routing\Annotation\Route;
 class PresencaController extends AbstractController
 {
 
+    #[Route('/api/presencas/', name: 'listar_presencas', methods: ['GET'])]
+    #[OA\Get(
+        summary: "Listar Presenças",
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Lista de Presenças",
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                    properties: [
+                        new OA\Property(property: 'aluno_id', type: 'integer'),
+                        new OA\Property(property: 'aula_id', type: 'integer'),
+                    ]
+                )
+
+            ))
+        ]
+    )]
+
+    public function listarPresenca(ListarPresencaUseCase $useCase)
+    {
+        $presencas = $useCase->execute();
+
+        if (!$presencas) {
+            return $this->json(['mensagem' => 'Nenhuma presença registrada'], 404);
+        }
+
+        $dadosFormatados = [];
+        foreach ($presencas as $presenca) {
+            $dadosFormatados[] = [
+                'presenca_id' => $presenca->getId(),
+                'aula_id' => $presenca->getAula()->getId(),
+                'aula_data' => $presenca->getAula()->getData()->format('Y-m-d'),
+                'aluno_id' => $presenca->getAluno()->getId(),
+                'aluno_nome' => $presenca->getAluno()->getNome(),
+                'presente' => $presenca->isPresente()
+            ];
+        }
+
+
+        return $this->json($dadosFormatados);
+    }
+
+
+
     #[Route('/api/presencas/aulas/{id}', name: 'listar_presenca_por_aula', methods: ['GET'])]
     #[OA\Get(
         summary: "Listar presenças por aula",
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Lista de Presença",
+                description: "Lista de Presença por Aula",
                 content: new OA\JsonContent(
                     type: "array",
                     items: new OA\Items(
                         type: "object",
                         properties: [
+                            new OA\Property(property: 'aula_id', type: 'integer'),
+                            new OA\Property(property: "aula_data", type: "date", example: "2025-08-07"),
                             new OA\Property(property: "aluno_id", type: "integer"),
                             new OA\Property(property: "aluno_nome", type: "string"),
                             new OA\Property(property: "presente", type: "boolean")
@@ -50,13 +100,19 @@ class PresencaController extends AbstractController
             return $this->json(['mensagem' => 'Nenhuma presença registrada para esta aula.'], 200);
         }
 
-        $dados = array_map(fn($presenca) => [
-            'aluno_id' => $presenca->getALuno()->getId(),
-            'aluno_nome' => $presenca->getAluno()->getNome(),
-            'presente' => $presenca->isPresente(),
-        ], $presencas);
+        $dadosFormatados = [];
+        foreach ($presencas as $presenca) {
+            $dadosFormatados[] = [
+                'aula_id' => $presenca->getAula()->getId(),
+                'aula_data' => $presenca->getAula()->getData()->format('Y-m-d'),
+                'aluno_id' => $presenca->getAluno()->getId(),
+                'aluno_nome' => $presenca->getAluno()->getNome(),
+                'presente' => $presenca->isPresente()
+            ];
+        }
 
-        return $this->json($dados);
+
+        return $this->json($dadosFormatados);
     }
 
 
@@ -68,7 +124,7 @@ class PresencaController extends AbstractController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['data'],
+                required: ['aluno_id', 'aula_id', 'presente'],
                 properties: [
                     new OA\Property(property: 'aluno_id', type: 'integer', example: 1),
                     new OA\Property(property: 'aula_id', type: 'integer', example: 1),
@@ -140,7 +196,7 @@ class PresencaController extends AbstractController
                 description: 'Presença atualizada com sucesso',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "id", type: "integer"),
+                        new OA\Property(property: "presenca_id", type: "integer"),
                         new OA\Property(property: "aluno_id", type: "integer"),
                         new OA\Property(property: "aluno_nome", type: "string"),
                         new OA\Property(property: "presente", type: "boolean")
@@ -167,14 +223,15 @@ class PresencaController extends AbstractController
         if (!$resultado) {
             return $this->json(['erro' => 'Presença não encontrada'], 400);
         }
-
         
         return $this->json([
             'mensagem' => 'Presença atualizada com sucesso',
             'presenca' => [
-                'id' => $resultado->getId(),
+                'presenca_id' => $resultado->getId(),
                 'aluno_id' => $resultado->getAluno()->getId(),
+                'aluno_nome' => $resultado->getAluno()->getNome(),
                 'aula_id' => $resultado->getAula()->getId(),
+                'aula_data' => $resultado->getAula()->getData()->format('Y-m-d'),
                 'presente' => $resultado->isPresente(),
             ]
         ]);

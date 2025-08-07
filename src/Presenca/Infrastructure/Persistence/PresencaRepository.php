@@ -60,6 +60,11 @@ class PresencaRepository extends ServiceEntityRepository implements PresencaRepo
         return $this->find($id);
     }
 
+    public function findAll():array
+    {
+        return $this->em->getRepository(Presenca::class)->findAll();
+    }
+
     public function remove (Presenca $presenca): void
     {
         $this->em->remove($presenca);

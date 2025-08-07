@@ -11,5 +11,6 @@ interface PresencaRepositoryInterface
     public function findByAulaId(int $aulaId): array;
     public function findByAlunoId(int $alunoId): array;
     public function findById(int $id): ?Presenca;
+    public function findALl(): array;
     public function remove (Presenca $presenca): void;
 }
