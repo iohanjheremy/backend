@@ -196,9 +196,9 @@ class PresencaController extends AbstractController
                 description: 'Presença atualizada com sucesso',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "presenca_id", type: "integer"),
-                        new OA\Property(property: "aluno_id", type: "integer"),
+                        new OA\Property(property: "presenca_id", type: "integer"),                        
                         new OA\Property(property: "aluno_nome", type: "string"),
+                        new OA\Property(property: "aula_data", type: "date"),
                         new OA\Property(property: "presente", type: "boolean")
                     ]
                 )
@@ -228,9 +228,7 @@ class PresencaController extends AbstractController
             'mensagem' => 'Presença atualizada com sucesso',
             'presenca' => [
                 'presenca_id' => $resultado->getId(),
-                'aluno_id' => $resultado->getAluno()->getId(),
                 'aluno_nome' => $resultado->getAluno()->getNome(),
-                'aula_id' => $resultado->getAula()->getId(),
                 'aula_data' => $resultado->getAula()->getData()->format('Y-m-d'),
                 'presente' => $resultado->isPresente(),
             ]
